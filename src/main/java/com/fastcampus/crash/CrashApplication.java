@@ -10,3 +10,5 @@ public class CrashApplication {
         SpringApplication.run(CrashApplication .class, args);
     }
 }
+
+// psql 설정파일 보기 : SHOW config_file;
