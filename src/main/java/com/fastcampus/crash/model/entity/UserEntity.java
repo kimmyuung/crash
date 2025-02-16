@@ -5,22 +5,20 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(
-        name = "\"user\""
-)
+@Table(name = "users") // "user" 대신 "users" 사용
 public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -29,27 +27,35 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column
-    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column
+    @Column(nullable = false, updatable = false)
     private ZonedDateTime createdDateTime;
 
-    public ZonedDateTime getCreatedDateTime() {
-        return createdDateTime;
+    @PrePersist
+    private void prePersist() {
+        this.createdDateTime = ZonedDateTime.now();
     }
 
-    public void setCreatedDateTime(ZonedDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
+    public static UserEntity of(String username, String password, String name, String email) {
+        var userEntity = new UserEntity();
+        userEntity.setUsername(username);
+        userEntity.setPassword(password);
+        userEntity.setName(name);
+        userEntity.setEmail(email);
+        userEntity.setRole(Role.USER);
+        userEntity.createdDateTime = ZonedDateTime.now();
+        return userEntity;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(() -> "ROLE_" + role.name());
     }
 
     @Override
@@ -122,30 +128,29 @@ public class UserEntity implements UserDetails {
         this.role = role;
     }
 
+    public ZonedDateTime getCreatedDateTime() {
+        return createdDateTime;
+    }
+
+    public void setCreatedDateTime(ZonedDateTime createdDateTime) {
+        this.createdDateTime = createdDateTime;
+    }
+
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserEntity that = (UserEntity) o;
-        return Objects.equals(userId, that.userId) && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(name, that.name) && Objects.equals(email, that.email) && role == that.role && Objects.equals(createdDateTime, that.createdDateTime);
+        return Objects.equals(userId, that.userId) &&
+                Objects.equals(username, that.username) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(email, that.email) &&
+                role == that.role &&
+                Objects.equals(createdDateTime, that.createdDateTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, password, name, email, role, createdDateTime);
-    }
-
-    public static UserEntity of(String username, String password, String name, String email) {
-        var userEntity = new UserEntity();
-        userEntity.setUsername(username);
-        userEntity.setPassword(password);
-        userEntity.setName(name);
-        userEntity.setEmail(email);
-        userEntity.setRole(Role.USER);
-        return userEntity;
-    }
-
-    @PrePersist
-    private void prePersist() {
-        this.createdDateTime = ZonedDateTime.now();
+        return Objects.hash(userId, username, name, email, role, createdDateTime);
     }
 }
