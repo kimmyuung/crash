@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="crash [bootRun --args='--spring.profiles.active=dev']" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="[DEV] BOOTRUN" type="GradleRunConfiguration" factoryName="Gradle">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
