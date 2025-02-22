@@ -2,6 +2,7 @@ package com.fastcampus.crash.model.user;
 
 import com.fastcampus.crash.model.entity.UserEntity;
 
+
 public record User(
         Long userId,
         String username,
@@ -15,4 +16,5 @@ public record User(
                 userEntity.getName(),
                 userEntity.getEmail());
     }
+
 }

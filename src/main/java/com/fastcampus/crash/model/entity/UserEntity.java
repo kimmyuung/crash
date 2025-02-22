@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "users") // "user" 대신 "users" 사용
+@Table(name = "users",
+indexes = {@Index(name = "users_username_idx", columnList = "username", unique = true)})
+// "user" 대신 "users" 사용
 public class UserEntity implements UserDetails {
 
     @Id
