@@ -1,7 +1,6 @@
 package com.fastcampus.crash.service;
 
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
@@ -49,4 +48,6 @@ public class JwtService {
             throw e;
         }
     }
+
+
 }

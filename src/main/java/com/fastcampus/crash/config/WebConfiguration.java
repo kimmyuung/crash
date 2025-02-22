@@ -20,6 +20,7 @@ import java.util.List;
 public class WebConfiguration {
 
     @Autowired private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired private JwtExceptionFilter jwtExceptionFilter;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -43,6 +44,7 @@ public class WebConfiguration {
                 )
                 .csrf(CsrfConfigurer::disable) //  csrf 비활성화
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, jwtAuthenticationFilter.getClass())
                 // 해당 Jwt 필터를 UsernamePasswordAuthenticationFilter 클래스 앞에 설정
                 // Jwt 인증로직이 로그인 체크시 작동해야 하기 때문
                 .httpBasic(HttpBasicConfigurer::disable); // 시큐리티 기본 비활성화
