@@ -3,6 +3,7 @@ package com.fastcampus.crash.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -25,7 +26,7 @@ public class WebConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhosit:3000" , "http://127.0.0.1:3000"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000" , "http://127.0.0.1:3000"));
         configuration.setAllowedMethods(List.of("GET" , "POST", "PATCH" , "DELETE"));
         configuration.setAllowedHeaders(List.of("*")); // 모든 값 허용
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -37,7 +38,12 @@ public class WebConfiguration {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.cors(Customizer.withDefaults())
-                .authorizeHttpRequests((requests) -> requests.anyRequest().permitAll())
+                .authorizeHttpRequests((requests) ->
+                        requests
+                                .requestMatchers(HttpMethod.POST, "/api/*/users", "/api/*/users/login")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated())
                 .sessionManagement(
                         (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         // 세션 관리는 stateless로 생성되지 않게 함
@@ -45,6 +51,8 @@ public class WebConfiguration {
                 .csrf(CsrfConfigurer::disable) //  csrf 비활성화
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionFilter, jwtAuthenticationFilter.getClass())
+
+
                 // 해당 Jwt 필터를 UsernamePasswordAuthenticationFilter 클래스 앞에 설정
                 // Jwt 인증로직이 로그인 체크시 작동해야 하기 때문
                 .httpBasic(HttpBasicConfigurer::disable); // 시큐리티 기본 비활성화

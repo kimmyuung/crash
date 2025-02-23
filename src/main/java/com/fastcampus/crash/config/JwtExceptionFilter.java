@@ -17,21 +17,28 @@ import java.io.IOException;
 @Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
+    private final ObjectMapper objectMapper;
+
+    public JwtExceptionFilter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
         } catch (JwtException exception) {
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 인증실패
-            response.setCharacterEncoding("UTF-8");
-
-            var errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            String responseJson = objectMapper.writeValueAsString(errorResponse);
-            response.getWriter().write(responseJson);
+            handleJwtException(response, exception);
         }
+    }
+
+    private void handleJwtException(HttpServletResponse response, JwtException exception) throws IOException {
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setCharacterEncoding("UTF-8");
+
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
